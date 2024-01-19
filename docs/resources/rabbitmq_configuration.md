@@ -34,6 +34,7 @@ resource "cloudamqp_rabbitmq_configuration" "rabbitmq_config" {
   cluster_partition_handling = "autoheal"
 }
 ```
+
 </details>
 
 <details>
@@ -42,7 +43,6 @@ resource "cloudamqp_rabbitmq_configuration" "rabbitmq_config" {
       <i>Change log level and combine `cloudamqp_node_actions` for RabbitMQ restart</i>
     </b>
   </summary>
-
 
 ```hcl
 resource "cloudamqp_rabbitmq_configuration" "rabbitmq_config" {
@@ -72,6 +72,7 @@ resource "cloudamqp_node_actions" "node_action" {
   ]
 }
 ```
+
 </details>
 
 <details>
@@ -81,13 +82,13 @@ resource "cloudamqp_node_actions" "node_action" {
     </b>
   </summary>
 
-
 ```hcl
 resource "cloudamqp_rabbitmq_configuration" "rabbit_config" {
   instance_id = cloudamqp_instance.instance.id
   log_exchange_level = "info"
 }
 ```
+
 </details>
 
 ## Argument Reference
@@ -95,18 +96,27 @@ resource "cloudamqp_rabbitmq_configuration" "rabbit_config" {
 The following arguments are supported:
 
 * `instance_id`                   - (Required) The CloudAMQP instance ID.
-* `heartbeat`                     - (Computed/Optional) Set the server AMQP 0-9-1 heartbeat timeout in seconds.
-* `connection_max`                - (Computed/Optional) Set the maximum permissible number of connection.
-* `channel_max`                   - (Computed/Optional) Set the maximum permissible number of channels per connection.
-* `consumer_timeout`              - (Computed/Optional) A consumer that has recevied a message and does not acknowledge that message within the timeout in milliseconds
-* `vm_memory_high_watermark`      - (Computed/Optional) When the server will enter memory based flow-control as relative to the maximum available memory.
-* `queue_index_embed_msgs_below`  - (Computed/Optional) Size in bytes below which to embed messages in the queue index. 0 will turn off payload embedding in the queue index.
-* `max_message_size`              - (Computed/Optional) The largest allowed message payload size in bytes.
-* `log_exchange_level`            - (Computed/Optional) Log level for the logger used for log integrations and the CloudAMQP Console log view.
 
-  *Note: Requires a restart of RabbitMQ to be applied.*
+* `heartbeat`                     - (Computed/Optional) Set the server AMQP 0-9-1 heartbeat timeout in seconds. Only effect new connections.
+
+* `connection_max`                - (Computed/Optional) Set the maximum permissible number of connection. Applied immediately (requires RabbitMQ restart before 3.11.13.).
+
+* `channel_max`                   - (Computed/Optional) Set the maximum permissible number of channels per connection, 0 means "no limit". Only effects new connections.
+
+* `consumer_timeout`              - (Computed/Optional) A consumer that has recevied a message and does not acknowledge that message within the timeout in milliseconds. Only effects new channels.
+
+* `vm_memory_high_watermark`      - (Computed/Optional) When the server will enter memory based flow-control as relative to the maximum available memory. Applied immediately
+
+* `queue_index_embed_msgs_below`  - (Computed/Optional) Size in bytes below which to embed messages in the queue index. 0 will turn off payload embedding in the queue index. Applied immediately for new queues, requires restart for existing queues.
+
+* `max_message_size`              - (Computed/Optional) The largest allowed message payload size in bytes. Only effects new channels.
+
+* `log_exchange_level`            - (Computed/Optional) Log level for the logger used for log integrations and the CloudAMQP Console log view. Requires RabbitMQ restart to be applied.
+
 * `cluster_partition_handling`    - (Computed/Optional) Set how the cluster should handle network partition.
+
 * `sleep` - (Optional) Configurable sleep time in seconds between retries for RabbitMQ configuration. Default set to 60 seconds.
+
 * `timeout` - (Optional) - Configurable timeout time in seconds for RabbitMQ configuration. Default set to 3600 seconds.
 
 ## Attributes Reference
@@ -117,10 +127,52 @@ All attributes reference are computed
 
 ## Argument threshold values
 
+### heartbeat
+
+| type | value |
+|---|---|
+| data type | int |
+| default | 120 |
+| min | 0 |
+| max | - |
+| effect | Only effect new connections |
+| note | Cannot set 0 as initial value, see [known issues](#known-issues) |
+
+### connection_max
+
+| type | value |
+|---|---|
+| data type | int |
+| default | 120 |
+| min | -1 |
+| max | - |
+| effect | Applied immediately. (Require RabbitMQ restart before 3.11.13.) |
+| note | -1 in the provider corresponds to INFINITY in the RabbitMQ config |
+
+### channel_max
+
+Only effects new connections.
+
+### consumer_timeout
+
+### vm_memory_high_watermark
+
+### queue_index_embed_msgs_below
+
+### max_message_size
+
+### log_exchange_level
+
+### cluster_partition_handling
+
+
+
+Recommended setting for cluster_partition_handling: `autoheal` for cluster with 1-2 nodes, `pause_minority` for cluster with 3 or more nodes. While `ignore` setting is not recommended.
+
 | Argument | Type | Default | Min | Max | Unit | Affect | Note |
 |---|---|---|---|---|---|---|---|
 | heartbeat | int | 120 | 0 | - |  | Only effects new connections |  |
-| connection_max | int | -1 | 1 | - |  | RabbitMQ restart required | -1 in the provider corresponds to INFINITY in the RabbitMQ config |
+| connection_max | int | -1 | 1 | - |  | Applied immediately. (Require RabbitMQ restart before 3.11.13.) | -1 in the provider corresponds to INFINITY in the RabbitMQ config |
 | channel_max | int | 128 | 0 | - |  | Only effects new connections |  |
 | consumer_timeout | int | 7200000 | 10000 | 86400000 | milliseconds | Only effects new channels | -1 in the provider corresponds to false (disable) in the RabbitMQ config |
 | vm_memory_high_watermark | float | 0.81 | 0.4 | 0.9 |  | Applied immediately |  |

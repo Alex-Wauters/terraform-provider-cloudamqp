@@ -128,6 +128,75 @@ All attributes reference are computed
 
 * `id`  - The identifier for this resource.
 
+## Argument reference 02
+
+* `heartbeat` - (Computed/Optional) Set the server AMQP 0-9-1 heartbeat timeout in seconds. Only effects new connections.
+
+<details>
+  <summary>Threshold</summary>
+  
+| type | value |
+|---|---|
+| data type | int |
+| default | 120 |
+| min | 0 |
+| note | 0 cannot be set as initial value, see [known issues](#known-issues) |
+
+</details>
+
+* `connection_max` - (Computed/Optional) Set the maximum permissible number of connection. Applied immediately, require RabbitMQ restart before 3.11.13.
+
+<details>
+  <summary>Threshold</summary>
+  
+| type | value |
+|---|---|
+| data type | int |
+| default | -1 |
+| min | 0 |
+| note | -1 in the provider corresponds to INFINITY in the RabbitMQ config |
+
+</details>
+
+* `channel_max` - (Computed/Optional) Set the maximum permissible number of channels per connection. Only effects new connections.
+
+<details>
+  <summary>Threshold</summary>
+    
+| type | value |
+|---|---|
+| data type | int |
+| default | 0 |
+| min | 0 |
+| note | 0 means no limit |
+
+</details>
+
+## Argument Reference 03
+
+The following arguments are supported:
+
+* `instance_id` - (Required) The CloudAMQP instance ID.
+
+* `heartbeat` - (Computed/Optional) Set the server AMQP 0-9-1 heartbeat timeout in seconds. Only effects new connections.
+  - data type: int
+  - default: 120
+  - min: 0
+  - note: 0 cannot be set as initial value, see [known issues](#known-issues)
+
+* `connection_max` - (Computed/Optional) Set the maximum permissible number of connection. Applied immediately. (RabbitMQ restart required before 3.11.13.)
+  - data type: int
+  - default: -1
+  - min: 0
+  - note: -1 in the provider corresponds to INFINITY in the RabbitMQ config 
+
+
+* `channel_max` - (Computed/Optional) Set the maximum permissible number of channels per connection, 0 means "no limit". Only effects new connections.
+  - data type: int
+  - default: 0
+  - min: 0
+  - note: 0 means no limit
+
 ## Argument threshold values
 
 ### heartbeat
@@ -242,50 +311,6 @@ Set how the cluster should handle network partition.
 | effect | Applied immediately |
 
 Recommended setting: `autoheal` for cluster with 1-2 nodes, `pause_minority` for cluster with 3 or more nodes. While `ignore` setting is not recommended.
-
-## Argument reference 02
-
-* `heartbeat`                    - (Computed/Optional) Set the server AMQP 0-9-1 heartbeat timeout in seconds. Only effect new connections
-
-<details>
-  <summary>Threshold</summary>
-  
-| type | value |
-|---|---|
-| data type | int |
-| default | 120 |
-| min | 0 |
-| note | 0 cannot be set as initial value, see [known issues](#known-issues) |
-
-</details>
-
-* `connection_max`                - (Computed/Optional) Set the maximum permissible number of connection. Applied immediately, require RabbitMQ restart before 3.11.13.
-
-<details>
-  <summary>Threshold</summary>
-  
-| type | value |
-|---|---|
-| data type | int |
-| default | -1 |
-| min | 0 |
-| note | -1 in the provider corresponds to INFINITY in the RabbitMQ config |
-
-</details>
-
-* `channel_max`                   - (Computed/Optional) Set the maximum permissible number of channels per connection. Only effects new connections.
-
-<details>
-  <summary>Threshold</summary>
-    
-| type | value |
-|---|---|
-| data type | int |
-| default | 0 |
-| min | 0 |
-| note | 0 means no limit |
-
-</details>
 
 ## Argument thresholds
 
